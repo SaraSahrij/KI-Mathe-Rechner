@@ -1,0 +1,153 @@
+@import '../src/styles.scss';
+
+// Chat Component Styling
+.chat-container {
+  width: 80%;
+  margin: 0 auto;
+  font-family: $font-family;
+
+  h1 {
+    color: $primary-color;
+    font-size: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    i {
+      margin-right: 10px;
+      color: $secondary-teal;
+    }
+  }
+}
+
+.chat-window-container {
+  display: flex;
+
+  .main-chat {
+    flex-grow: 1;
+  }
+
+  aside {
+    margin-left: 2rem;
+  }
+}
+
+.chat-window {
+  height: 400px;
+  border: 1px solid $primary-dark;
+  padding: 30px;
+  overflow-y: scroll;
+  margin-bottom: 20px;
+  background-color: $accent-light;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+
+  .message-content {
+    white-space: pre-wrap;
+    font-size: 1rem;
+  }
+
+  .user-message {
+    text-align: right;
+    background-color: $secondary-teal;
+    color: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 15px 15px 0 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .assistant-message {
+    text-align: left;
+    background-color: $accent-blue;
+    color: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 15px 15px 15px 0;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.chat-input {
+  display: flex;
+  margin-bottom: 5rem;
+
+  textarea.form-control {
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    border: 1px solid $primary-dark;
+    padding: 10px;
+    font-size: 1rem;
+    width: 100%;
+    resize: vertical;  // Allows the user to resize the textarea vertically
+  }
+
+  button.btn-primary {
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    background-color: $secondary-teal;
+    border: 1px solid $primary-dark;
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin-left: 1rem;
+
+    &:hover {
+      background-color: darken($secondary-teal, 10%);
+    }
+
+    i {
+      margin-right: 5px;
+    }
+  }
+}
+
+.recommendations-window {
+  margin-top: 4.90rem;
+  padding: 20px;
+  border: 1px solid $primary-dark;
+  border-radius: 8px;
+  background-color: $accent-light;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  h2 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 10px;
+      color: $secondary-teal;
+    }
+  }
+
+  h3 {
+    font-size: 1.25rem;
+    margin-top: 15px;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 10px;
+      color: $primary-dark;
+    }
+  }
+
+  ul {
+    list-style-type: none;
+    padding-left: 0;
+
+    li {
+      margin-bottom: 10px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+
+      i {
+        margin-right: 10px;
+        color: $primary-color;
+      }
+    }
+  }
+}

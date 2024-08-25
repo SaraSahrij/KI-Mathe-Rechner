@@ -1,0 +1,38 @@
+<div class="chat-container">
+  <div class="chat-window-container" *ngIf="isAuthenticated">
+    <div class="main-chat">
+      <h1 class="text-center mb-4"><i class="fa fa-comments"></i>Mathematik KI-Chat</h1>
+
+      <div class="chat-window">
+        <!-- Loop through messages and display them -->
+        <div *ngFor="let message of messages"
+             [ngClass]="{'user-message': message.role === 'user', 'assistant-message': message.role === 'assistant'}">
+          <p class="message-content">{{ message.content }}</p>
+        </div>
+      </div>
+      <div class="chat-input input-group mt-3">
+        <textarea [(ngModel)]="userMessage" placeholder="Geben Sie Ihr Matheproblem ein …" class="form-control"
+                  (keyup.enter)="sendMessage()" rows="3"></textarea>
+        <button (click)="sendMessage()" class="btn btn-primary"><i class="fa fa-paper-plane"></i> Senden</button>
+      </div>
+    </div>
+    <aside>
+      <div class="recommendations-window mt-3">
+        <h2><i class="fa fa-lightbulb"></i> Personalisierte Empfehlungen</h2>
+        <p>{{ recommendations.message }}</p>
+        <h3><i class="fa fa-thumbs-up"></i> Deine Stärken</h3>
+        <ul>
+          <li *ngFor="let strength of recommendations.strengths"><i class="fa fa-check-circle"></i> {{ strength }}</li>
+        </ul>
+        <h3><i class="fa fa-thumbs-down"></i> Deine Schwäche</h3>
+        <ul>
+          <li *ngFor="let weakness of recommendations.weaknesses"><i class="fa fa-times-circle"></i> {{ weakness }}</li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <div *ngIf="!isAuthenticated" class="alert alert-warning mt-4">
+    <i class="fa fa-exclamation-triangle"></i> Please login to use the math solver.
+  </div>
+</div>

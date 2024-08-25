@@ -1,0 +1,91 @@
+@import '../src/styles.scss';
+
+
+// Login Component Styling
+.auth-container {
+  background-color: $primary-dark; // Use Primary Dark for the background
+  color: $accent-light; // Use Accent Light for the text color
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    font-size: 1.75rem;
+    color: $accent-light; // Use Accent Light for the header
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+
+    i {
+      margin-right: 10px;
+      color: $secondary-teal; // Use Secondary Teal for the icon
+    }
+  }
+
+  .form-group {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+
+    label {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      margin-bottom: 7px;
+      font-size: 1.1rem;
+
+      i {
+        margin-right: 10px;
+        color: $secondary-teal; // Use Secondary Teal for the icons
+      }
+    }
+
+    .form-control {
+      background-color: $accent-light; // Use Accent Light for the input background
+      border: none;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 4px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 95%;
+
+      &:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px $accent-blue; // Highlight on focus
+      }
+    }
+  }
+
+  .btn-primary {
+    background-color: $secondary-teal; // Use Secondary Teal for the button
+    border: none;
+    padding: 10px 15px;
+    font-size: 1rem;
+    border-radius: 4px;
+    width: 100%;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: darken($secondary-teal, 10%); // Darken on hover
+    }
+  }
+
+  p {
+    margin-top: 20px;
+    text-align: center;
+
+    a {
+      color: $accent-blue; // Use Accent Blue for links
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+

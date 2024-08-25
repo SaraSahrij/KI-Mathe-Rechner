@@ -1,0 +1,69 @@
+@import '../src/styles.scss';
+
+
+.footer {
+  background-color: $primary-dark; // Use Primary Dark for the footer background
+  color: $accent-light; // Use Accent Light for the text color
+  text-align: center;
+  align-self: flex-end;
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+
+      .col {
+        flex: 1;
+
+
+        h5 {
+          font-size: 1.1rem;
+          font-weight: bold;
+          margin-bottom: 15px;
+          color: $accent-light; // Using Accent Light for the headings
+        }
+
+        p {
+          margin-bottom: 15px;
+        }
+
+        ul {
+          padding-left: 0;
+          list-style-type: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+
+            i {
+              margin-right: 10px;
+              color: $accent-red; // Using Accent Red for icons
+            }
+
+            a {
+              color: $accent-light; // Using Accent Light for link text
+              text-decoration: none;
+
+              &:hover {
+                color: $accent-blue; // Using Accent Blue for link hover
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .footer-bottom {
+    background-color: $secondary-teal; // Use Secondary Teal for the footer bottom background
+    color: $primary-dark; // Use Primary Dark for the footer bottom text
+    padding: 15px 0;
+  }
+}

@@ -35,6 +35,11 @@
               "src/styles.scss"
             ],
             "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src"
+              ]
+            },
             "server": "src/main.server.ts",
             "prerender": true,
             "ssr": {
@@ -67,6 +72,9 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "frontend:build:production"
@@ -96,9 +104,16 @@
               }
             ],
             "styles": [
-              "src/styles.scss"
+              "node_modules/ngx-toastr/toastr.css",
+              "src/styles.scss",
+              "node_modules/font-awesome/css/font-awesome.min.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "src"
+              ]
+            }
           }
         }
       }

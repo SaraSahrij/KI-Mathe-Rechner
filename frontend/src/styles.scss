@@ -1,0 +1,25 @@
+
+
+// Variables
+$primary-dark: #2C3E50;
+$accent-light: #ECF0F1;
+$accent-red: #E74C3C;
+$accent-blue: #3498DB;
+$secondary-teal: #1ABC9C;
+$primary-dark:#2C3E50;
+$primary-color:#2C3E50;
+$font-family: 'Arial, sans-serif';
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+// Global Styles
+body {
+  font-family: $font-family;
+  background-color: $accent-light;
+  color: $primary-dark;
+}
