@@ -18,15 +18,17 @@
     </div>
     <aside>
       <div class="recommendations-window mt-3">
-        <h2><i class="fa fa-lightbulb"></i> Personalisierte Empfehlungen</h2>
-        <p>{{ recommendations.message }}</p>
-        <h3><i class="fa fa-thumbs-up"></i> Deine Stärken</h3>
+        <h2><i class="fa fa-lightbulb"></i>{{username}}'s Fragestatistik nach Kategorien</h2>
         <ul>
-          <li *ngFor="let strength of recommendations.strengths"><i class="fa fa-check-circle"></i> {{ strength }}</li>
-        </ul>
-        <h3><i class="fa fa-thumbs-down"></i> Deine Schwäche</h3>
-        <ul>
-          <li *ngFor="let weakness of recommendations.weaknesses"><i class="fa fa-times-circle"></i> {{ weakness }}</li>
+          <li *ngFor="let category of recommendations?.categories">
+            {{ category.name }}
+            <div class="progress">
+              <div class="progress-bar" role="progressbar" [style.width]="category.percentage + '%'"
+                   [attr.aria-valuenow]="category.percentage" aria-valuemin="0" aria-valuemax="100">
+              {{ category.percentage }}%
+              </div>
+            </div>
+          </li>
         </ul>
       </div>
     </aside>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import axios from 'axios';
 import { RouterLink } from "@angular/router";
 import { NgClass, NgForOf, NgIf } from "@angular/common";
@@ -19,23 +19,41 @@ import { ToastrService } from 'ngx-toastr';
   ],
   styleUrls: ['./chat.component.scss']
 })
-export class ChatComponent {
+export class ChatComponent implements OnInit{
   userMessage: string = '';
   messages: { role: string, content: string }[] = [];
   context: { role: string, content: string }[] = [];
   recommendations: any = null;
+  username: string = '';
   isAuthenticated: boolean = false;
+
 
   constructor(private spinner: NgxSpinnerService, private toastr: ToastrService) {
     this.isAuthenticated = true;
+    this.username = localStorage.getItem('username') || 'User';
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    this.isAuthenticated = false;
-    this.toastr.info('You have been logged out.', 'Info');
+  ngOnInit() {
+    this.fetchUsername();
   }
+
+  async fetchUsername() {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:3000/api/userinfo', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      this.username = response.data.username || 'User';  // Set username, fallback to 'User'
+    } catch (error) {
+      console.error('Error fetching username:', error);
+      this.toastr.error('Unable to fetch username.', 'Error');
+    }
+  }
+
+
+
 
   async sendMessage() {
     if (!this.userMessage.trim() || !this.isAuthenticated) {
@@ -59,17 +77,11 @@ export class ChatComponent {
           'Authorization': `Bearer ${token}`
         }
       });
-      this.context = response.data.context; // Update context with assistant's response
-      this.messages.push({ role: 'assistant', content: response.data.solution });
-      this.toastr.success('Message sent successfully!', 'Success');
 
-      // Get recommendations after solving the problem
-      const recommendationsResponse = await axios.post('http://localhost:3000/api/recommend', { userId }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      this.recommendations = recommendationsResponse.data; // Store recommendations to display them
+      this.context = response.data.context;  // Update context with assistant's response
+      this.messages.push({ role: 'assistant', content: response.data.solution });
+      this.recommendations = response.data.recommendations;  // Store recommendations with categories
+      this.toastr.success('Message sent successfully!', 'Success');
 
     } catch (error) {
       console.error(error);
@@ -80,5 +92,12 @@ export class ChatComponent {
     }
 
     this.userMessage = '';
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    this.isAuthenticated = false;
+    this.toastr.info('You have been logged out.', 'Info');
   }
 }

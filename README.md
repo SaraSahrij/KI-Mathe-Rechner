@@ -53,7 +53,7 @@ Before you begin, ensure you have met the following requirements:
 
     ```bash
     cd backend
-    node index.js
+    node app.js
     ```
 
 2. Start the frontend server:
