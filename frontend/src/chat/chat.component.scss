@@ -30,6 +30,9 @@
 
   aside {
     margin-left: 2rem;
+    max-width: 60rem;
+    max-height: 100rem;
+    overflow-y: scroll;
   }
 }
 
@@ -206,4 +209,123 @@
     }
   }
 }
+
+.recommendations-window {
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+
+  h2 {
+    display: flex;
+    align-items: center;
+    color: #004085;  // Dark blue for the header text
+
+    i {
+      margin-right: 10px;
+      color: #17a2b8;  // Lightbulb icon color
+    }
+  }
+
+  .recommendation-card {
+    background-color: #fff;
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: box-shadow 0.3s;
+
+    &:hover {
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    }
+
+    .category-title {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #004085;  // Dark blue for category title
+      margin-bottom: 10px;
+    }
+
+    .recommendation-list {
+      list-style: none;
+      padding: 0;
+
+      li {
+        margin-bottom: 10px;
+      }
+
+      .recommendation-link {
+        font-size: 1.1rem;
+        color: #007bff;  // Blue link color
+        text-decoration: none;
+        transition: color 0.3s;
+
+        i {
+          margin-right: 8px;
+          color: #17a2b8;  // Icon color
+        }
+
+        &:hover {
+          color: #0056b3;  // Darker blue on hover
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+.recommendations-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;  // Ensure both sections stretch to the same height
+}
+
+.categories-section,
+.recommendations-section {
+  flex: 1;  // Allow both sections to take up equal space
+  margin-right: 20px;
+}
+
+.recommendations-section {
+  overflow: hidden;  // Prevent overflow for the section as a whole
+}
+
+.recommendations-content {
+  height: 100%;
+  overflow-y: auto;  // Enable vertical scrolling within the recommendations content
+  max-height: 400px;  // You can adjust this max-height based on your layout needs
+  padding-right: 15px; // Optional: Add padding for scrollbar space
+}
+
+.recommendation-card {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+}
+
+.recommendation-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.recommendation-link:hover {
+  text-decoration: underline;
+}
+
+.category-title {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.progress {
+  height: 20px;
+  margin-bottom: 15px;
+}
+
+
 

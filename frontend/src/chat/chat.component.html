@@ -17,20 +17,40 @@
       </div>
     </div>
     <aside>
-      <div class="recommendations-window mt-3">
-        <h2><i class="fa fa-lightbulb"></i>{{username}}'s Fragestatistik nach Kategorien</h2>
-        <ul>
-          <li *ngFor="let category of recommendations?.categories">
-            {{ category.name }}
-            <div class="progress">
-              <div class="progress-bar" role="progressbar" [style.width]="category.percentage + '%'"
-                   [attr.aria-valuenow]="category.percentage" aria-valuemin="0" aria-valuemax="100">
-              {{ category.percentage }}%
+      <!-- chat.component.html -->
+      <div class="recommendations-window mt-3 categories-section">
+          <h2><i class="fa fa-lightbulb"></i>{{ username }}'s Fragestatistik</h2>
+          <ul>
+            <li *ngFor="let category of categories">
+              {{ category.name }}
+              <div class="progress">
+                <div class="progress-bar" role="progressbar" [style.width]="category.percentage + '%'"
+                     [attr.aria-valuenow]="category.percentage" aria-valuemin="0" aria-valuemax="100">
+                  {{ category.percentage }}%
+                </div>
               </div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="recommendations-window mt-3 recommendations-section">
+          <h2><i class="fa fa-lightbulb"></i> Personalisierte Empfehlung</h2>
+          <div *ngIf="recommendations" class="recommendations-content">
+            <div *ngFor="let recommendation of recommendations" class="recommendation-card">
+              <p *ngIf="recommendation.category !== 'null'" class="category-title">{{ recommendation.category }}:</p>
+              <ul class="recommendation-list">
+                <li *ngFor="let l of recommendation.links">
+                  <a href="{{l.link}}" class="recommendation-link">
+                    <i class="fa fa-book"></i> {{ l.title }}
+                  </a>
+                </li>
+              </ul>
             </div>
-          </li>
-        </ul>
-      </div>
+          </div>
+        </div>
+
+
+
     </aside>
   </div>
 

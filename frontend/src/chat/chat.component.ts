@@ -1,10 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import axios from 'axios';
-import { RouterLink } from "@angular/router";
-import { NgClass, NgForOf, NgIf } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { NgxSpinnerService } from 'ngx-spinner';
-import { ToastrService } from 'ngx-toastr';
+import {RouterLink} from "@angular/router";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {NgxSpinnerService} from 'ngx-spinner';
+import {ToastrService} from 'ngx-toastr';
 
 @Component({
   selector: 'app-chat',
@@ -19,14 +19,14 @@ import { ToastrService } from 'ngx-toastr';
   ],
   styleUrls: ['./chat.component.scss']
 })
-export class ChatComponent implements OnInit{
+export class ChatComponent implements OnInit {
   userMessage: string = '';
   messages: { role: string, content: string }[] = [];
   context: { role: string, content: string }[] = [];
   recommendations: any = null;
+  categories: any = null;
   username: string = '';
   isAuthenticated: boolean = false;
-
 
   constructor(private spinner: NgxSpinnerService, private toastr: ToastrService) {
     this.isAuthenticated = true;
@@ -34,7 +34,31 @@ export class ChatComponent implements OnInit{
   }
 
   ngOnInit() {
-    this.fetchUsername();
+    this.loadChatData();  // Call function to load data from localStorage
+    this.fetchUsername() // Fetch username, as before
+  }
+
+  loadChatData() {
+    const savedMessages = localStorage.getItem('messages');
+    const savedContext = localStorage.getItem('context');
+    const savedCategories = localStorage.getItem('categories');
+    const savedRecommendations = localStorage.getItem('recommendations');
+
+    if (savedMessages) {
+      this.messages = JSON.parse(savedMessages);  // Load both user and AI messages
+    }
+
+    if (savedContext) {
+      this.context = JSON.parse(savedContext);
+    }
+
+    if (savedCategories) {
+      this.categories = JSON.parse(savedCategories);
+    }
+
+    if (savedRecommendations) {
+      this.recommendations = JSON.parse(savedRecommendations);
+    }
   }
 
   async fetchUsername() {
@@ -52,17 +76,20 @@ export class ChatComponent implements OnInit{
     }
   }
 
-
-
-
   async sendMessage() {
     if (!this.userMessage.trim() || !this.isAuthenticated) {
       this.toastr.warning('Please enter a message or login first.', 'Warning');
       return;
     }
 
-    this.messages.push({ role: 'user', content: this.userMessage });
-    this.context.push({ role: 'user', content: this.userMessage });
+    // Push user message to the messages array
+    this.messages.push({role: 'user', content: this.userMessage});
+    this.context.push({role: 'user', content: this.userMessage});
+
+    // Save user message and context immediately to localStorage
+    localStorage.setItem('messages', JSON.stringify(this.messages));
+    localStorage.setItem('context', JSON.stringify(this.context));
+
     this.spinner.show();
 
     try {
@@ -78,26 +105,34 @@ export class ChatComponent implements OnInit{
         }
       });
 
-      this.context = response.data.context;  // Update context with assistant's response
-      this.messages.push({ role: 'assistant', content: response.data.solution });
-      this.recommendations = response.data.recommendations;  // Store recommendations with categories
+      // Update context and push AI response
+      this.context = response.data.context;
+      this.messages.push({role: 'assistant', content: response.data.solution});
+
+      // Save the entire messages array, including the AI's response, to localStorage
+      localStorage.setItem('messages', JSON.stringify(this.messages));
+
+      // Save recommendations and categories
+      this.recommendations = response.data.recommendations;
+      this.categories = response.data.categories;
+      localStorage.setItem('recommendations', JSON.stringify(this.recommendations));
+      localStorage.setItem('categories', JSON.stringify(this.categories));
+
       this.toastr.success('Message sent successfully!', 'Success');
 
     } catch (error) {
       console.error(error);
-      this.messages.push({ role: 'assistant', content: 'An error occurred while solving the problem.' });
+      this.messages.push({role: 'assistant', content: 'An error occurred while solving the problem.'});
+
+      // Save the error response as well
+      localStorage.setItem('messages', JSON.stringify(this.messages));
       this.toastr.error('An error occurred while solving the problem.', 'Error');
     } finally {
       await this.spinner.hide();
     }
 
-    this.userMessage = '';
+    this.userMessage = ''; // Clear the user's input
   }
 
-  logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-    this.isAuthenticated = false;
-    this.toastr.info('You have been logged out.', 'Info');
-  }
+  protected readonly onkeypress = onkeypress;
 }

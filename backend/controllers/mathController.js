@@ -27,15 +27,15 @@ function categorizeProblem(problem) {
     if (/ungleichung|inequality/i.test(problem)) return 'Ungleichheiten';
     if (/graph|graphentheorie/i.test(problem)) return 'Graphentheorie';
 
-    return 'unknown';  // Default if no match
+    return 'null';
 }
 
-// Function to analyze user performance and return category-based recommendations
+// Function to analyze user performance and return category-based statistics
 async function analyzeUserPerformance(userId) {
     try {
-        const userInteractions = await UserInteraction.findOne({ userId });
-        if (!userInteractions) {
-            return { categories: [] };
+        const userInteractions = await UserInteraction.findOne({userId});
+        if (!userInteractions || userInteractions.interactions.length === 0) {
+            return {categories: []};
         }
 
         const categoryCounts = {};
@@ -53,31 +53,79 @@ async function analyzeUserPerformance(userId) {
             };
         });
 
-        return { categories };
+        return {categories};
     } catch (error) {
         console.error('Error analyzing user performance:', error);
-        return { error: "An error occurred during user analysis" };
+        return {error: "An error occurred during user analysis"};
+    }
+}
+
+
+// Generiere Empfehlungen basierend auf Kategorien
+async function generateRecommendations(categories) {
+    try {
+        const messages = [
+            {
+                role: 'system',
+                content: 'You are a helpful assistant that suggests books based on mathematical topics.'
+            },
+            {
+                role: 'user',
+                content: `Please provide a JSON array of book recommendations for each of the following mathematical topics: ${categories.map(c => c.name).join(', ')}. 
+                Each object in the array should contain the category, book title, and link, in the format: 
+                {"category": "Category Name", "title": "Book Title", "link": "https://book-link.com"}`
+            }
+        ];
+
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: 'gpt-3.5-turbo',
+            messages,
+            max_tokens: 500
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+            }
+        });
+
+        let recommendationsText = response.data.choices[0].message.content.trim();
+        recommendationsText = recommendationsText.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        const recommendationsArray = JSON.parse(recommendationsText);
+
+        // Group recommendations by category
+        return recommendationsArray.reduce((acc, recommendation) => {
+            let categoryGroup = acc.find(c => c.category === recommendation.category);
+            if (!categoryGroup) {
+                categoryGroup = {category: recommendation.category, links: []};
+                acc.push(categoryGroup);
+            }
+            categoryGroup.links.push({title: recommendation.title, link: recommendation.link});
+            return acc;
+        }, []);
+
+    } catch (error) {
+        return [];
     }
 }
 
 // Solving the math problem and storing the interaction
 exports.solveMathProblem = async (req, res) => {
-    const { problem, context } = req.body;
+    const {problem, context} = req.body;
     const userId = req.user.id;
 
     if (!problem) {
-        return res.status(400).json({ error: 'Problem is required' });
+        return res.status(400).json({error: 'Problem is required'});
     }
 
     const problemCategory = categorizeProblem(problem);
 
     const messages = [
         {
-            role: 'system', content: 'You are a math assistant. Provide clear, well-structured, ' +
-                'and neatly formatted step-by-step solutions to math problems.'
+            role: 'system',
+            content: 'You are a math assistant. Provide clear, well-structured, and neatly formatted step-by-step solutions to math problems.'
         },
         ...(context || []),
-        { role: 'user', content: `Please solve this math problem step by step: ${problem}` }
+        {role: 'user', content: `Please solve this math problem step by step: ${problem}`}
     ];
 
     try {
@@ -94,24 +142,27 @@ exports.solveMathProblem = async (req, res) => {
         const solution = response.data.choices[0].message.content.trim();
 
         // Save interaction with category
-        const userInteraction = await UserInteraction.findOne({ userId });
+        const userInteraction = await UserInteraction.findOne({userId});
         if (userInteraction) {
-            userInteraction.interactions.push({ problem, solution, category: problemCategory });
+            userInteraction.interactions.push({problem, solution, category: problemCategory});
             await userInteraction.save();
         } else {
-            await new UserInteraction({ userId, interactions: [{ problem, solution, category: problemCategory }] }).save();
+            await new UserInteraction({userId, interactions: [{problem, solution, category: problemCategory}]}).save();
         }
 
-        const { categories } = await analyzeUserPerformance(userId);
+        // Analyze performance and generate recommendations
+        const {categories} = await analyzeUserPerformance(userId);
+        const recommendations = await generateRecommendations(categories);
 
         res.json({
             solution,
-            context: [...messages, { role: 'assistant', content: solution }],
-            recommendations: { categories }
+            context: [...messages, {role: 'assistant', content: solution}],
+            categories,
+            recommendations  // Now passing the array of objects
         });
 
     } catch (error) {
         console.error('Error from OpenAI API:', error.response ? error.response.data : error.message);
-        res.status(500).json({ error: 'An error occurred while solving the problem' });
+        res.status(500).json({error: 'An error occurred while solving the problem'});
     }
 };
