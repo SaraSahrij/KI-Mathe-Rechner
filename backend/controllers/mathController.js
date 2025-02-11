@@ -30,7 +30,7 @@ function categorizeProblem(problem) {
     return 'null';
 }
 
-// Function to analyze user performance and return category-based statistics
+// Funktion zur Analyse der Benutzerfragen und zur Rückgabe kategoriebasierter Statistiken
 async function analyzeUserPerformance(userId) {
     try {
         const userInteractions = await UserInteraction.findOne({userId});
@@ -60,7 +60,6 @@ async function analyzeUserPerformance(userId) {
     }
 }
 
-
 // Generiere Empfehlungen basierend auf Kategorien
 async function generateRecommendations(categories) {
     try {
@@ -72,8 +71,9 @@ async function generateRecommendations(categories) {
             {
                 role: 'user',
                 content: `Please provide a JSON array of book recommendations for each of the following mathematical topics: ${categories.map(c => c.name).join(', ')}. 
+                Use Google Scholar to find the books!
                 Each object in the array should contain the category, book title, and link, in the format: 
-                {"category": "Category Name", "title": "Book Title", "link": "https://book-link.com"}`
+                {"category": "Category Name", "title": "Book Title"}`
             }
         ];
 
@@ -110,11 +110,11 @@ async function generateRecommendations(categories) {
 
 // Solving the math problem and storing the interaction
 exports.solveMathProblem = async (req, res) => {
-    const {problem, context} = req.body;
+    const { problem, context } = req.body;
     const userId = req.user.id;
 
     if (!problem) {
-        return res.status(400).json({error: 'Problem is required'});
+        return res.status(400).json({ error: 'Bitte geben Sie eine mathematische Frage ein.' });
     }
 
     const problemCategory = categorizeProblem(problem);
@@ -122,10 +122,10 @@ exports.solveMathProblem = async (req, res) => {
     const messages = [
         {
             role: 'system',
-            content: 'You are a math assistant. Provide clear, well-structured, and neatly formatted step-by-step solutions to math problems.'
+            content: 'Du bist ein Mathematik-Assistent. Gib klare, gut strukturierte und sauber formatierte Schritt-für-Schritt-Lösungen zu mathematischen Problemen an.'
         },
         ...(context || []),
-        {role: 'user', content: `Please solve this math problem step by step: ${problem}`}
+        { role: 'user', content: `Bitte löse dieses mathematische Problem Schritt für Schritt: ${problem}` }
     ];
 
     try {
@@ -141,28 +141,29 @@ exports.solveMathProblem = async (req, res) => {
 
         const solution = response.data.choices[0].message.content.trim();
 
-        // Save interaction with category
-        const userInteraction = await UserInteraction.findOne({userId});
+        // Interaktion mit Kategorie speichern
+        const userInteraction = await UserInteraction.findOne({ userId });
         if (userInteraction) {
-            userInteraction.interactions.push({problem, solution, category: problemCategory});
+            userInteraction.interactions.push({ problem, solution, category: problemCategory });
             await userInteraction.save();
         } else {
-            await new UserInteraction({userId, interactions: [{problem, solution, category: problemCategory}]}).save();
+            await new UserInteraction({ userId, interactions: [{ problem, solution, category: problemCategory }] }).save();
         }
 
-        // Analyze performance and generate recommendations
-        const {categories} = await analyzeUserPerformance(userId);
+        // Leistung analysieren und Empfehlungen generieren
+        const { categories } = await analyzeUserPerformance(userId);
         const recommendations = await generateRecommendations(categories);
 
         res.json({
             solution,
-            context: [...messages, {role: 'assistant', content: solution}],
+            context: [...messages, { role: 'assistant', content: solution }],
             categories,
-            recommendations  // Now passing the array of objects
+            recommendations
         });
 
     } catch (error) {
-        console.error('Error from OpenAI API:', error.response ? error.response.data : error.message);
-        res.status(500).json({error: 'An error occurred while solving the problem'});
+        console.error('Fehler bei der OpenAI-API:', error.response ? error.response.data : error.message);
+        res.status(500).json({ error: 'Beim Lösen des Problems ist ein Fehler aufgetreten.' });
     }
 };
+

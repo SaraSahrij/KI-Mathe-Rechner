@@ -1,6 +1,6 @@
 const express = require('express');
 const { solveMathProblem } = require('../controllers/mathController');
-const authenticateToken = require('../middleware/authenticateToken');
+const authenticateToken = require('../sevices/authenticateToken');
 
 const router = express.Router();
 

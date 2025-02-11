@@ -34,7 +34,9 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/mathjax/es5/tex-mml-chtml.js"
+            ],
             "stylePreprocessorOptions": {
               "includePaths": [
                 "src"

@@ -37,7 +37,7 @@
 }
 
 .chat-window {
-  height: 400px;
+  height: 500px;
   border: 1px solid $primary-dark;
   padding: 30px;
   overflow-y: scroll;
@@ -94,6 +94,8 @@
     padding: 10px 20px;
     font-size: 1rem;
     margin-left: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
 
     &:hover {
       background-color: darken($secondary-teal, 10%);
@@ -101,6 +103,15 @@
 
     i {
       margin-right: 5px;
+    }
+
+    // When button is disabled
+    &:disabled {
+      background-color: lighten($secondary-teal, 20%);
+      border-color: lighten($primary-dark, 20%);
+      cursor: default;
+      pointer-events: none; // Prevents hover effects
+      opacity: 0.6;
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {Router, RouterLink} from '@angular/router';
-import { NgIf, NgClass } from '@angular/common';
+import { NgIf } from '@angular/common';
 import {AuthService} from "../services/auth.service";
 
 @Component({
@@ -9,7 +9,6 @@ import {AuthService} from "../services/auth.service";
   templateUrl: './header.component.html',
   imports: [
     NgIf,
-    NgClass,
     RouterLink,
   ],
   styleUrls: ['./header.component.scss']

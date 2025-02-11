@@ -1,21 +1,37 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit, ElementRef, Directive, Input, OnChanges } from '@angular/core';
 import axios from 'axios';
-import {RouterLink} from "@angular/router";
-import {NgClass, NgForOf, NgIf} from "@angular/common";
-import {FormsModule} from "@angular/forms";
-import {NgxSpinnerService} from 'ngx-spinner';
-import {ToastrService} from 'ngx-toastr';
+import { NgClass, NgForOf, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { NgxSpinnerService } from 'ngx-spinner';
+import { ToastrService } from 'ngx-toastr';
+
+declare var MathJax: any;
+
+@Directive({
+  standalone: true,
+  selector: '[mathjax]'
+})
+export class MathjaxDirective implements OnChanges {
+  @Input('mathjax') content!: string;
+
+  constructor(private el: ElementRef) {}
+
+  ngOnChanges() {
+    this.el.nativeElement.innerHTML = this.content;
+    MathJax.typesetPromise();
+  }
+}
 
 @Component({
   selector: 'app-chat',
   templateUrl: './chat.component.html',
   standalone: true,
   imports: [
-    RouterLink,
     NgClass,
     NgForOf,
     NgIf,
-    FormsModule
+    FormsModule,
+    MathjaxDirective
   ],
   styleUrls: ['./chat.component.scss']
 })
@@ -27,6 +43,12 @@ export class ChatComponent implements OnInit {
   categories: any = null;
   username: string = '';
   isAuthenticated: boolean = false;
+  sendenActive = true;
+
+  nonMathKeywords: string[] = [
+    "how are you", "how r u", "wie geht's", "wie gehts", "thanks", "thank you",
+    "danke dir", "danke", "vielen dank", "wie läuft es", "wie steht’s"
+  ];
 
   constructor(private spinner: NgxSpinnerService, private toastr: ToastrService) {
     this.isAuthenticated = true;
@@ -34,8 +56,8 @@ export class ChatComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadChatData();  // Call function to load data from localStorage
-    this.fetchUsername() // Fetch username, as before
+    this.loadChatData();
+    this.fetchUsername();
   }
 
   loadChatData() {
@@ -45,7 +67,7 @@ export class ChatComponent implements OnInit {
     const savedRecommendations = localStorage.getItem('recommendations');
 
     if (savedMessages) {
-      this.messages = JSON.parse(savedMessages);  // Load both user and AI messages
+      this.messages = JSON.parse(savedMessages);
     }
 
     if (savedContext) {
@@ -69,7 +91,7 @@ export class ChatComponent implements OnInit {
           'Authorization': `Bearer ${token}`
         }
       });
-      this.username = response.data.username || 'User';  // Set username, fallback to 'User'
+      this.username = response.data.username || 'User';
     } catch (error) {
       console.error('Error fetching username:', error);
       this.toastr.error('Unable to fetch username.', 'Error');
@@ -78,61 +100,61 @@ export class ChatComponent implements OnInit {
 
   async sendMessage() {
     if (!this.userMessage.trim() || !this.isAuthenticated) {
-      this.toastr.warning('Please enter a message or login first.', 'Warning');
+      this.toastr.warning('Bitte geben Sie eine Nachricht ein oder melden Sie sich zuerst an.', 'Warnung');
       return;
     }
 
-    // Push user message to the messages array
-    this.messages.push({role: 'user', content: this.userMessage});
-    this.context.push({role: 'user', content: this.userMessage});
+    // Check if the message is a non-math-related phrase
+    const messageLower = this.userMessage.toLowerCase();
+    if (this.nonMathKeywords.some(keyword => messageLower.includes(keyword))) {
+      this.messages.push({ role: 'assistant', content: 'Ich beantworte nur mathematische Fragen! 😊' });
+      this.userMessage = '';
+      return;
+    }
 
-    // Save user message and context immediately to localStorage
+    this.sendenActive = false;
+    const messageToSend = this.userMessage;
+    this.userMessage = '';
+
+    this.messages.push({ role: 'user', content: messageToSend });
+    this.context.push({ role: 'user', content: messageToSend });
+
     localStorage.setItem('messages', JSON.stringify(this.messages));
     localStorage.setItem('context', JSON.stringify(this.context));
 
-    this.spinner.show();
+    await this.spinner.show();
 
     try {
       const userId = localStorage.getItem('userId');
       const token = localStorage.getItem('token');
+
       const response = await axios.post('http://localhost:3000/api/solve', {
-        problem: this.userMessage,
+        problem: messageToSend,
         context: this.context,
         userId
       }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      // Update context and push AI response
       this.context = response.data.context;
-      this.messages.push({role: 'assistant', content: response.data.solution});
+      this.messages.push({ role: 'assistant', content: response.data.solution });
 
-      // Save the entire messages array, including the AI's response, to localStorage
       localStorage.setItem('messages', JSON.stringify(this.messages));
 
-      // Save recommendations and categories
       this.recommendations = response.data.recommendations;
       this.categories = response.data.categories;
       localStorage.setItem('recommendations', JSON.stringify(this.recommendations));
       localStorage.setItem('categories', JSON.stringify(this.categories));
 
-      this.toastr.success('Message sent successfully!', 'Success');
-
+      this.toastr.success('Nachricht erfolgreich gesendet!', 'Erfolg');
     } catch (error) {
       console.error(error);
-      this.messages.push({role: 'assistant', content: 'An error occurred while solving the problem.'});
-
-      // Save the error response as well
+      this.messages.push({ role: 'assistant', content: 'Beim Lösen des Problems ist ein Fehler aufgetreten.' });
       localStorage.setItem('messages', JSON.stringify(this.messages));
-      this.toastr.error('An error occurred while solving the problem.', 'Error');
+      this.toastr.error('Ein Fehler ist aufgetreten.', 'Fehler');
     } finally {
+      this.sendenActive = true;
       await this.spinner.hide();
     }
-
-    this.userMessage = ''; // Clear the user's input
   }
-
-  protected readonly onkeypress = onkeypress;
 }
